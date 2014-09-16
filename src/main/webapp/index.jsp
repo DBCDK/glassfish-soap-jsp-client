@@ -98,6 +98,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Soap webservice test client</title>
+        <style type="text/css">
+            TEXTAREA {
+                width: 100%;
+                height: 50ex;
+            }
+        </style>
         <script type="text/javascript">
             var content = <%= makeConfig(request)%>;
             var endpoint = null;
@@ -194,10 +200,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             function sendSoap(url, content) {
                 var xmlhttp = xmlHttp();
                 xmlhttp.open("POST", url, true);
-                xmlhttp.setRequestHeader("Content-Type", "text/xml");
+                xmlhttp.setRequestHeader("Content-Type", "text/xml; charset=UTF-8");
+                xmlhttp.setRequestHeader("Accept", "text/xml");
                 xmlhttp.onreadystatechange = function() {
                     if (xmlhttp.readyState === 4) {
-                        var uri = "data:text/xml;base64," + Base64.encode(xmlhttp.responseText);
+                        var uri = "data:" + xmlhttp.getResponseHeader("Content-Type") + ";base64," + Base64.encode(xmlhttp.responseText);
                         window.open(uri, "_blank");
                     }
                 };
@@ -354,13 +361,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 <br>
                 <hr>
             </div>
-            <input type="button" value="Service WSDL" onclick="showWsdl();">
-            <br>
-            <textarea id="xml" rows=20 cols=90></textarea>
+            <textarea id="xml"></textarea>
             <br>
             <br>
             <select id="picker" onChange="setupRequest(this.selectedIndex - 1);"></select>
-            <input type="button" value="Try me" onclick="sendRequest();">
+            <input type="button" value="Send Request" onclick="sendRequest();">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <input type="button" value="Service WSDL" onclick="showWsdl();">
             <br>
             <br>
         </div>
