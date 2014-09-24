@@ -125,7 +125,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             }
 
             function fetchHTML(id, url) {
-                console.log("in fetchHTML()");
                 $.ajax({
                     url: url,
                     success: function (data, status, request) {
