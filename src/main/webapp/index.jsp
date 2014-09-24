@@ -104,255 +104,160 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 height: 50ex;
             }
         </style>
+        <script type="text/javascript" src="jquery-1.11.1.min.js">
+        </script>
+        <script type="text/javascript" src="jquery-base64.min.js">
+        </script>
+        <script type="text/javascript" src="jquery-format.min.js">
+        </script>
         <script type="text/javascript">
             var content = <%= makeConfig(request)%>;
-            var endpoint = null;
+
+            var service = null;
             var request = null;
-            var Base64 = {// http://stackoverflow.com/questions/246801/how-can-you-encode-a-string-to-base64-in-javascript
-                _keyStr: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
-                encode: function(input) {
-                    var output = "";
-                    var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
-                    var i = 0;
-                    input = Base64._utf8_encode(input);
-                    while (i < input.length) {
-                        chr1 = input.charCodeAt(i++);
-                        chr2 = input.charCodeAt(i++);
-                        chr3 = input.charCodeAt(i++);
-                        enc1 = chr1 >> 2;
-                        enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
-                        enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
-                        enc4 = chr3 & 63;
-                        if (isNaN(chr2)) {
-                            enc3 = enc4 = 64;
-                        } else if (isNaN(chr3)) {
-                            enc4 = 64;
-                        }
-                        output = output +
-                                Base64._keyStr.charAt(enc1) + Base64._keyStr.charAt(enc2) +
-                                Base64._keyStr.charAt(enc3) + Base64._keyStr.charAt(enc4);
-                    }
-                    return output;
-                },
-                _utf8_encode: function(string) {
-                    var utftext = "";
-                    for (var n = 0; n < string.length; n++) {
-                        var c = string.charCodeAt(n);
-                        if (c < 128) {
-                            utftext += String.fromCharCode(c);
-                        } else if ((c > 127) && (c < 2048)) {
-                            utftext += String.fromCharCode((c >> 6) | 192);
-                            utftext += String.fromCharCode((c & 63) | 128);
-                        } else {
-                            utftext += String.fromCharCode((c >> 12) | 224);
-                            utftext += String.fromCharCode(((c >> 6) & 63) | 128);
-                            utftext += String.fromCharCode((c & 63) | 128);
-                        }
-                    }
-                    return utftext;
-                }
-            }
-
-            function xmlHttp() {
-
-                var xmlhttp = false;
-                /*@cc_on @*/
-                /*@if (@_jscript_version >= 5)
-                 // JScript gives us Conditional compilation, we can cope with old IE versions.
-                 // and security blocked creation of the objects.
-                 try {
-                 xmlhttp = new ActiveXObject("Msxml2.XMLHTTP");
-                 } catch (e) {
-                 try {
-                 xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-                 } catch (E) {
-                 xmlhttp = false;
-                 }
-                 }
-                 @end @*/
-                if (!xmlhttp && typeof XMLHttpRequest !== 'undefined') {
-                    try {
-                        xmlhttp = new XMLHttpRequest();
-                    } catch (e) {
-                    }
-                }
-                if (!xmlhttp && window.createRequest) {
-                    try {
-                        xmlhttp = window.createRequest();
-                    } catch (e) {
-                    }
-                }
-                if (!xmlhttp && window.XMLHttpRequest) {
-                    try {
-                        xmlhttp = new window.XMLHttpRequest();
-                    } catch (e) {
-                    }
-                }
-                if (!xmlhttp) {
-                    try {
-                        xmlhttp = new ActiveXObject("MSXML2.XMLHTTP.3.0");
-                    } catch (ex) {
-                    }
-                }
-                return xmlhttp;
-            }
-
-            function sendSoap(url, content) {
-                var xmlhttp = xmlHttp();
-                xmlhttp.open("POST", url, true);
-                xmlhttp.setRequestHeader("Content-Type", "text/xml; charset=UTF-8");
-                xmlhttp.setRequestHeader("Accept", "text/xml");
-                xmlhttp.onreadystatechange = function() {
-                    if (xmlhttp.readyState === 4) {
-                        var uri = "data:" + xmlhttp.getResponseHeader("Content-Type") + ";base64," + Base64.encode(xmlhttp.responseText);
-                        window.open(uri, "_blank");
-                    }
-                };
-                xmlhttp.send(content);
-            }
-
-            function requestXml(url, id) {
-                var element = document.getElementById(id);
-                var xmlhttp = xmlHttp();
-                xmlhttp.open("GET", url, true);
-                xmlhttp.onreadystatechange = function() {
-                    if (xmlhttp.readyState === 4 && xmlhttp.status === 200 && xmlhttp.responseXML !== null) {
-                        element.value = xmlhttp.responseText;
-                    }
-                };
-                xmlhttp.send();
-            }
-
-            function requestHtml(url, id) {
-                var element = document.getElementById(id);
-                var xmlhttp = xmlHttp();
-                xmlhttp.open("GET", url, true);
-                xmlhttp.responseType = "document";
-                xmlhttp.onreadystatechange = function() {
-                    if (xmlhttp.readyState === 4 && xmlhttp.status === 200 && xmlhttp.responseXML !== null) {
-                        var body = xmlhttp.responseXML.body;
-                        if (body.hasChildNodes()) {
-                            var e;
-                            var i = 1;
-                            for (; ; ) {
-                                e = document.getElementById(id + '_' + i++);
-                                if (e === null)
-                                    break;
-                                e.style.display = 'initial';
-                            }
-                        }
-                        while (body.hasChildNodes()) {
-                            var e = document.adoptNode(body.firstChild, true);
-                            element.appendChild(e);
-                        }
-                    }
-                };
-                xmlhttp.send();
-            }
-
-            function clearElement(id) {
-                var e = document.getElementById(id);
-                while (e.hasChildNodes()) {
-                    e.removeChild(e.firstChild);
-                }
-                var i = 1;
-                for (; ; ) {
-                    e = document.getElementById(id + '_' + i++);
-                    if (e === null)
-                        break;
-                    e.style.display = 'none';
-                }
-            }
-
-            function setupEndpoints() {
-                document.getElementById('xml').value = '';
-                clearElement('endpoints');
-                clearElement('picker');
-                clearElement('header');
-                clearElement('doc');
-                clearElement('footer');
-                document.getElementById("endpoint_wrapper").style.display = 'none';
-                if (content.length === 1) {
-                    document.getElementById("endpoints_wrapper").style.display = 'none';
-                    setupEndpoint(0);
-                    return;
-                }
-                var select = document.getElementById("endpoints");
-                var option = document.createElement('option');
-                option.appendChild(document.createTextNode("Pick a service"));
-                select.appendChild(option);
-                content.forEach(function(v) {
-                    var option = document.createElement('option');
-                    option.appendChild(document.createTextNode(v['name']));
-                    select.appendChild(option);
-                });
-            }
-
-            function setupEndpoint(n) {
-                document.getElementById('xml').value = '';
-                var select = document.getElementById("picker");
-                clearElement('picker');
-                clearElement('header');
-                clearElement('doc');
-                clearElement('footer');
-                if (n === -1) {
-                    document.getElementById("endpoint_wrapper").style.display = 'none';
-                    endpoint = request = null;
-                    return;
-                }
-                document.getElementById("endpoint_wrapper").style.display = 'inherit';
-                endpoint = content[n];
-                var option = document.createElement('option');
-                option.appendChild(document.createTextNode("Pick a request"));
-                select.appendChild(option);
-                endpoint['examples'].forEach(function(v) {
-                    var option = document.createElement('option');
-                    option.appendChild(document.createTextNode(v['name']));
-                    select.appendChild(option);
-                });
-
-                if (endpoint['header']) {
-                    requestHtml(endpoint['path'] + "/header.html", 'header');
-                }
-                if (endpoint['footer']) {
-                    requestHtml(endpoint['path'] + "/footer.html", 'footer');
-                }
-            }
-
-            function setupRequest(n) {
-                document.getElementById('xml').value = '';
-                clearElement('doc');
-                if (n === -1) {
-                    request = null;
-                    return;
-                }
-                request = endpoint['examples'][n];
-                requestXml(endpoint['path'] + '/' + request['path'], 'xml');
-                if (request['html']) {
-                    requestHtml(endpoint['path'] + '/' + request['html'], 'doc');
-                }
-            }
-
-            function sendRequest() {
-                sendSoap(endpoint['name'], document.getElementById('xml').value);
-            }
+            var dataUri = false;
 
             function showWsdl() {
-                if (endpoint !== null) {
-                    var uri = endpoint['name'] + "?wsdl";
+                if (service !== -1) {
+                    var uri = content[service]['name'] + "?wsdl";
                     window.open(uri, "_blank");
                 }
             }
+
+            function fetchHTML(id, url) {
+                console.log("in fetchHTML()");
+                $.ajax({
+                    url: url,
+                    success: function (data, status, request) {
+                        var array = data.match(/(<body[^>]*>)([\s\S]*)(<\/body)/m);
+                        $('#' + id).append($.parseHTML(data));
+                        $("[id^='" + id + "_']").show();
+                    }
+                });
+            }
+
+            function fetchXML(url) {
+                $.ajax({
+                    url: url,
+                    dataType: 'text',
+                    success: function (data, status, request) {
+                        $('#xml').val(data);
+                    }
+                });
+            }
+
+            function soapCallback(data, status, req) {
+                try {
+                    $('iframe')[0].contentWindow.document.body.hasChildNodes();
+                    var uri = "data:" + data.getResponseHeader("Content-Type") + ";base64," + $.base64('encode', data.responseText);
+                    window.open(uri, "_blank");
+                } catch (e) {
+                    if (data.getResponseHeader("Content-Type").match(/^text\/xml/)) {
+                        var content = $("<div>").val(data.responseText).format({method: 'xml'}).val();
+                        var w = window.open();
+                        var d = w.document;
+                        var pre = d.createElement("pre");
+                        pre.appendChild(d.createTextNode(content));
+                        d.body.appendChild(pre);
+                    } else {
+                        var w = window.open();
+                        var d = w.document;
+                        d.open('text/html', 'replace');
+                        d.write(data.responseText);
+                        d.close();
+                    }
+                }
+            }
+
+            function fetchSoap() {
+                if (service === -1)
+                    return;
+                $.ajax({
+                    type: 'POST',
+                    url: content[service]['name'],
+                    contentType: 'text/xml',
+                    dataType: 'text',
+                    data: $('#xml').val(),
+                    success: soapCallback,
+                    error: soapCallback
+                });
+            }
+
+            function setupService(no) {
+                if (service === no)
+                    return;
+
+                service = no;
+                $('#service').hide();
+                $('#header').contents().remove();
+                $("[id^='header_']").hide();
+                $('#footer').contents().remove();
+                $("[id^='footer_']").hide();
+                $('#xml').each(function () {
+                    $(this).val('');
+                });
+                $('#requests').contents().each(function (no) {
+                    if (no !== 0)
+                        $(this).remove();
+                });
+                setupRequest(-1);
+
+                if (no === -1)
+                    return;
+
+                $('#service').show();
+                if (content[service]['header'] !== false) {
+                    fetchHTML('header', content[service]['path'] + '/header.html');
+                }
+                if (content[service]['footer'] !== false) {
+                    fetchHTML('footer', content[service]['path'] + '/footer.html');
+                }
+
+                $.each(content[service]['examples'], function (no) {
+                    $('#requests').append($('<option>').append(document.createTextNode($(this)[0]['name'])));
+                });
+            }
+
+            function setupRequest(no) {
+                if (no === request)
+                    return;
+
+                request = no;
+                $('#xml').val('');
+                $('#doc').contents().remove();
+                $("[id^='doc_']").hide();
+
+                if (no === -1)
+                    return;
+
+                fetchXML(content[service]['path'] + '/' + content[service]['examples'][request]['path']);
+                if (content[service]['examples'][request]['html'] !== false) {
+                    fetchHTML('doc', content[service]['path'] + '/' + content[service]['examples'][request]['html']);
+                }
+            }
+
+            $('document').ready(function (event) {
+                $.each(content, function (no) {
+                    $('#services').append($('<option>').append(document.createTextNode($(this)[0]['name'])));
+                });
+                if (content.length === 1) {
+                    setupService(0);
+                    $('#service_selector').hide();
+                } else {
+                    setupService(-1);
+                }
+            });
         </script>
     </head>
-    <body onload="setupEndpoints()">
+    <body>
         <h2>Copyright (C) 2014 DBC A/S (http://dbc.dk/)</h2>
-        <div id="endpoints_wrapper">
-            <select id="endpoints" onChange="setupEndpoint(this.selectedIndex - 1);"></select>
+        <p>SOAP Webservice test client</p>
+        <div id="service_selector">
+            <select id="services" onChange="setupService(this.selectedIndex - 1);"><option>Select service</option></select>
             <br>
             <hr>
         </div>
-        <div id="endpoint_wrapper">
+        <div id="service">
             <div id="header_1">
                 <br>
             </div>
@@ -364,8 +269,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <textarea id="xml"></textarea>
             <br>
             <br>
-            <select id="picker" onChange="setupRequest(this.selectedIndex - 1);"></select>
-            <input type="button" value="Send Request" onclick="sendRequest();">
+            <select id="requests" onChange="setupRequest(this.selectedIndex - 1);"><option>Pick a request</option></select>
+            <input type="button" value="Send Request" onclick="fetchSoap();">
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <input type="button" value="Service WSDL" onclick="showWsdl();">
             <br>
@@ -383,5 +288,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <br>
         </div>
         <div id="footer"></div>
+        <iframe style="display: none;" src="data:text/html,<html><body><hr></body></html>"></iframe>
     </body>
 </html>

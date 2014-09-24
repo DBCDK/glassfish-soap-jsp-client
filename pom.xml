@@ -27,11 +27,40 @@
             <resource>
                 <directory>${basedir}/src/main/webapp</directory>
                 <includes>
-                    <include>*.*</include>
+                    <include>*.jsp</include>
                 </includes>
                 <filtering>false</filtering>
             </resource>
+            <resource>
+                <directory>${basedir}/src/scripts</directory>
+                <excludes>
+                    <exclude>*</exclude>
+                </excludes>
+            </resource>
         </resources>
+        <plugins>
+            <plugin>
+                <artifactId>exec-maven-plugin</artifactId>
+                <groupId>org.codehaus.mojo</groupId>
+                <version>1.3.2</version>
+                <executions>
+                    <execution>
+                        <id>Inline Javascript</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${basedir}/src/scripts/inline.bash</executable>
+                            <arguments>
+                                <argument>${basedir}/src/scripts</argument>
+                                <argument>${project.build.directory}/classes/*.jsp</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
 
     </build>
 
