@@ -127,7 +127,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             function fetchHTML(id, url) {
                 $.ajax({
                     url: url,
-                    success: function (data, status, request) {
+                    success: function(data, status, request) {
                         var array = data.match(/(<body[^>]*>)([\s\S]*)(<\/body)/m);
                         $('#' + id).append($.parseHTML(data));
                         $("[id^='" + id + "_']").show();
@@ -139,7 +139,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 $.ajax({
                     url: url,
                     dataType: 'text',
-                    success: function (data, status, request) {
+                    success: function(data, status, request) {
                         $('#xml').val(data);
                     }
                 });
@@ -151,19 +151,38 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     var uri = "data:" + data.getResponseHeader("Content-Type") + ";base64," + $.base64('encode', data.responseText);
                     window.open(uri, "_blank");
                 } catch (e) {
-                    if (data.getResponseHeader("Content-Type").match(/^text\/xml/)) {
-                        var content = $("<div>").val(data.responseText).format({method: 'xml'}).val();
-                        var w = window.open();
-                        var d = w.document;
-                        var pre = d.createElement("pre");
-                        pre.appendChild(d.createTextNode(content));
-                        d.body.appendChild(pre);
+                    if (typeof (data) === 'string') {
+                        if (req.getResponseHeader("Content-Type").match(/^text\/xml/)) {
+                            var content = $("<div>").val(data).format({method: 'xml'}).val();
+                            var w = window.open();
+                            var d = w.document;
+                            var pre = d.createElement("pre");
+                            pre.appendChild(d.createTextNode(content));
+                            d.body.appendChild(pre);
+                            d.close();
+                        } else {
+                            var w = window.open();
+                            var d = w.document;
+                            d.open('text/html', 'replace');
+                            d.write(data);
+                            d.close();
+                        }
                     } else {
-                        var w = window.open();
-                        var d = w.document;
-                        d.open('text/html', 'replace');
-                        d.write(data.responseText);
-                        d.close();
+                        if (data.getResponseHeader("Content-Type").match(/^text\/xml/)) {
+                            var content = $("<div>").val(data.responseText).format({method: 'xml'}).val();
+                            var w = window.open();
+                            var d = w.document;
+                            var pre = d.createElement("pre");
+                            pre.appendChild(d.createTextNode(content));
+                            d.body.appendChild(pre);
+                            d.close();
+                        } else {
+                            var w = window.open();
+                            var d = w.document;
+                            d.open('text/html', 'replace');
+                            d.write(data.responseText);
+                            d.close();
+                        }
                     }
                 }
             }
@@ -192,10 +211,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 $("[id^='header_']").hide();
                 $('#footer').contents().remove();
                 $("[id^='footer_']").hide();
-                $('#xml').each(function () {
+                $('#xml').each(function() {
                     $(this).val('');
                 });
-                $('#requests').contents().each(function (no) {
+                $('#requests').contents().each(function(no) {
                     if (no !== 0)
                         $(this).remove();
                 });
@@ -212,7 +231,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     fetchHTML('footer', content[service]['path'] + '/footer.html');
                 }
 
-                $.each(content[service]['examples'], function (no) {
+                $.each(content[service]['examples'], function(no) {
                     $('#requests').append($('<option>').append(document.createTextNode($(this)[0]['name'])));
                 });
             }
@@ -235,8 +254,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 }
             }
 
-            $('document').ready(function (event) {
-                $.each(content, function (no) {
+            $('document').ready(function(event) {
+                $.each(content, function(no) {
                     $('#services').append($('<option>').append(document.createTextNode($(this)[0]['name'])));
                 });
                 if (content.length === 1) {
