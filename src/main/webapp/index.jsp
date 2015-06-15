@@ -77,7 +77,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <!--
-Copyright (C) 2014 DBC A/S (http://dbc.dk/)
+Copyright (C) 2015 DBC A/S (http://dbc.dk/)
 
 This is part of glassfish-soap-jsp-client
 
@@ -268,7 +268,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </script>
     </head>
     <body>
-        <h2>Copyright (C) 2014 DBC A/S (http://dbc.dk/)</h2>
+        <h2>Copyright (C) 2015 DBC A/S (http://dbc.dk/)</h2>
         <p>SOAP Webservice test client</p>
         <div id="service_selector">
             <select id="services" onChange="setupService(this.selectedIndex - 1);"><option>Select service</option></select>
