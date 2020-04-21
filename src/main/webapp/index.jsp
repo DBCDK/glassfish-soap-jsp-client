@@ -152,7 +152,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     url: url,
                     dataType: 'text',
                     success: function (data, status, request) {
-                        $('#xml').val(data.replace(/%\{(.*?)\}%/g, regexpCallBack));
+                        $('#xml').val(data.replace(/%\{([^]*?)\}%/g, regexpCallBack));
                     }
                 });
             }
