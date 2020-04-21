@@ -31,6 +31,7 @@ pipeline {
                     rm -rf \$WORKSPACE/.repo/dk/dbc
                     mvn -B -Dmaven.repo.local=\$WORKSPACE/.repo install
                 """
+            }
         }
 
 
@@ -46,6 +47,7 @@ pipeline {
             }
         }
     }
+    
     post {
         failure {
             script {
