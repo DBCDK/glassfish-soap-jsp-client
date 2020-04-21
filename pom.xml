@@ -51,8 +51,9 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>${basedir}/src/scripts/inline.bash</executable>
+                            <executable>bash</executable>
                             <arguments>
+                                <argument>${basedir}/src/scripts/inline.bash</argument>
                                 <argument>${basedir}/src/scripts</argument>
                                 <argument>${project.build.directory}/classes/*.jsp</argument>
                             </arguments>
