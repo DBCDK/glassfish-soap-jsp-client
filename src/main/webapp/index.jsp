@@ -117,6 +117,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             var request = null;
             var dataUri = false;
 
+            function NOW() {
+                return new Date().toISOString();
+            }
+
             function showWsdl() {
                 if (service !== -1) {
                     var uri = content[service]['name'] + "?wsdl";
@@ -127,20 +131,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             function fetchHTML(id, url) {
                 $.ajax({
                     url: url,
-                    success: function(data, status, request) {
+                    success: function (data, status, request) {
                         var array = data.match(/(<body[^>]*>)([\s\S]*)(<\/body)/m);
-                        $('#' + id).append($.parseHTML(data));
+                        $('#' + id).append($.parseHTML(array));
                         $("[id^='" + id + "_']").show();
                     }
                 });
+            }
+
+            function regexpCallBack(total, match) {
+                try {
+                    return eval(match);
+                } catch(exception) {
+                    return "EXCEPTION:" + exception;
+                }
             }
 
             function fetchXML(url) {
                 $.ajax({
                     url: url,
                     dataType: 'text',
-                    success: function(data, status, request) {
-                        $('#xml').val(data);
+                    success: function (data, status, request) {
+                        $('#xml').val(data.replace(/%\{(.*?)\}%/g, regexpCallBack));
                     }
                 });
             }
@@ -211,10 +223,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 $("[id^='header_']").hide();
                 $('#footer').contents().remove();
                 $("[id^='footer_']").hide();
-                $('#xml').each(function() {
+                $('#xml').each(function () {
                     $(this).val('');
                 });
-                $('#requests').contents().each(function(no) {
+                $('#requests').contents().each(function (no) {
                     if (no !== 0)
                         $(this).remove();
                 });
@@ -231,7 +243,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     fetchHTML('footer', content[service]['path'] + '/footer.html');
                 }
 
-                $.each(content[service]['examples'], function(no) {
+                $.each(content[service]['examples'], function (no) {
                     $('#requests').append($('<option>').append(document.createTextNode($(this)[0]['name'])));
                 });
             }
@@ -254,8 +266,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 }
             }
 
-            $('document').ready(function(event) {
-                $.each(content, function(no) {
+            $('document').ready(function (event) {
+                $.each(content, function (no) {
                     $('#services').append($('<option>').append(document.createTextNode($(this)[0]['name'])));
                 });
                 if (content.length === 1) {
