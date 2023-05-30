@@ -1,6 +1,6 @@
-<%@page import="javax.json.JsonObjectBuilder"%>
-<%@page import="javax.json.Json"%>
-<%@page import="javax.json.JsonArrayBuilder"%>
+<%@page import="jakarta.json.JsonObjectBuilder"%>
+<%@page import="jakarta.json.Json"%>
+<%@page import="jakarta.json.JsonArrayBuilder"%>
 <%@page import="java.util.regex.Matcher"%>
 <%@page import="java.util.regex.Pattern"%>
 <%@page import="java.util.Comparator"%>
