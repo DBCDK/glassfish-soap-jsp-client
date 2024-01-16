@@ -18,7 +18,7 @@
     <repositories>
         <repository>
             <id>mavenrepo.dbc.dk</id>
-            <url>http://mavenrepo.dbc.dk/content/groups/public</url>
+            <url>https://mavenrepo.dbc.dk/content/groups/public</url>
         </repository>
     </repositories>
 
@@ -85,7 +85,7 @@
         <repository>
             <id>mavenrepo.dbc.dk</id>
             <name>DBC Maven Repository</name>
-            <url>http://mavenrepo.dbc.dk/content/repositories/snapshots</url>
+            <url>https://mavenrepo.dbc.dk/content/repositories/snapshots</url>
         </repository>
     </distributionManagement>
 
